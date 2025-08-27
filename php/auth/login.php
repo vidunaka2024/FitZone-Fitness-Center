@@ -1,18 +1,16 @@
 <?php
-// FitZone Fitness Center - Login Processing
+// FitZone Fitness Center - Unified Login Processing
 
-// Start session and define access constant
-session_start();
+// Define access constant and include required files
 define('FITZONE_ACCESS', true);
-
-// Include required files
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../includes/AuthMiddleware.php';
 
 // Set content type for JSON responses
 header('Content-Type: application/json');
 
-// Check if request is POST and AJAX
+// Check if request is POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     errorResponse('Invalid request method', [], 405);
 }
@@ -45,12 +43,13 @@ try {
         errorResponse('Validation failed', $errors);
     }
     
-    // Attempt login
-    $loginResult = loginUser($email, $password, $rememberMe);
+    // Attempt login using AuthMiddleware
+    $auth = new AuthMiddleware();
+    $loginResult = $auth->login($email, $password, $rememberMe);
     
     if ($loginResult['success']) {
-        // Determine redirect URL
-        $redirectUrl = 'dashboard.php';
+        // Determine redirect URL based on role
+        $redirectUrl = $auth->getDashboardUrl();
         
         // Check for return URL
         if (!empty($_POST['return_url'])) {
@@ -61,25 +60,14 @@ try {
             }
         }
         
-        // Clear any failed login attempts for this IP
-        clearFailedAttempts($_SERVER['REMOTE_ADDR'] ?? '');
-        
         successResponse('Login successful', [
             'redirect' => $redirectUrl,
-            'user' => [
-                'id' => $loginResult['user']['id'],
-                'name' => $loginResult['user']['first_name'] . ' ' . $loginResult['user']['last_name'],
-                'email' => $loginResult['user']['email'],
-                'role' => $loginResult['user']['role'],
-                'membership_plan' => $loginResult['user']['membership_plan']
-            ]
+            'user' => $loginResult['user'],
+            'session_data' => $auth->getSessionData()
         ]);
     } else {
-        // Log failed attempt
-        logFailedAttempt($email, $_SERVER['REMOTE_ADDR'] ?? '');
-        
-        // Return generic error message for security
-        errorResponse($loginResult['message'], ['email' => 'Invalid credentials']);
+        // Return error message
+        errorResponse($loginResult['message'], ['general' => $loginResult['message']]);
     }
     
 } catch (Exception $e) {

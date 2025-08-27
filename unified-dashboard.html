@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitZone - Dashboard</title>
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/dashboard.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .unified-dashboard {
+            display: flex;
+            min-height: 100vh;
+            background: #f8f9fa;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-280px);
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+
+        .user-info h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .user-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .nav-section {
+            padding: 1.5rem 0;
+        }
+
+        .nav-section-title {
+            padding: 0 1.5rem;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            margin-bottom: 1rem;
+        }
+
+        .nav-item {
+            margin: 0.25rem 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: white;
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 12px;
+            text-align: center;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            margin-left: auto;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        .top-bar {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .notification-icon {
+            position: relative;
+            color: #666;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-area {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin: 0 0 0.5rem 0;
+            font-weight: 600;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            margin: 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-info h3 {
+            font-size: 2rem;
+            margin: 0;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .stat-info p {
+            margin: 0.5rem 0 0 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .section-content {
+            padding: 2rem;
+        }
+
+        .class-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .class-card {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .class-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .class-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .class-info {
+            padding: 1.5rem;
+        }
+
+        .class-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+            color: #2c3e50;
+        }
+
+        .class-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .class-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1rem;
+            color: white;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .activity-subtitle {
+            color: #6c757d;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .activity-time {
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-280px);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-toggle {
+                display: block;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .class-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-area {
+                padding: 1rem;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Loading states */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="unified-dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <img src="uploads/profile-pics/default-avatar.jpg" alt="Profile" class="user-avatar" id="userAvatar">
+                    <div class="user-info">
+                        <h3 id="userName">Loading...</h3>
+                        <p id="userRole">Member</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Navigation -->
+            <div class="nav-section">
+                <div class="nav-section-title">Dashboard</div>
+                <div class="nav-item">
+                    <a href="#overview" class="nav-link active" data-page="overview">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Overview
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#profile" class="nav-link" data-page="profile">
+                        <i class="fas fa-user"></i>
+                        My Profile
+                    </a>
+                </div>
+            </div>
+
+            <!-- Fitness Navigation -->
+            <div class="nav-section">
+                <div class="nav-section-title">Fitness</div>
+                <div class="nav-item">
+                    <a href="#classes" class="nav-link" data-page="classes">
+                        <i class="fas fa-calendar-alt"></i>
+                        Classes
+                        <span class="badge" id="upcomingClasses">0</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#trainers" class="nav-link" data-page="trainers">
+                        <i class="fas fa-user-tie"></i>
+                        Personal Trainers
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#workouts" class="nav-link" data-page="workouts">
+                        <i class="fas fa-dumbbell"></i>
+                        My Workouts
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#progress" class="nav-link" data-page="progress">
+                        <i class="fas fa-chart-line"></i>
+                        Progress Tracking
+                    </a>
+                </div>
+            </div>
+
+            <!-- Membership Navigation -->
+            <div class="nav-section">
+                <div class="nav-section-title">Membership</div>
+                <div class="nav-item">
+                    <a href="#membership" class="nav-link" data-page="membership">
+                        <i class="fas fa-id-card"></i>
+                        My Membership
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#billing" class="nav-link" data-page="billing">
+                        <i class="fas fa-credit-card"></i>
+                        Billing & Payments
+                    </a>
+                </div>
+            </div>
+
+            <!-- Admin Navigation (conditionally shown) -->
+            <div class="nav-section" id="adminSection" style="display: none;">
+                <div class="nav-section-title">Administration</div>
+                <div class="nav-item">
+                    <a href="#admin-users" class="nav-link" data-page="admin-users">
+                        <i class="fas fa-users"></i>
+                        User Management
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#admin-classes" class="nav-link" data-page="admin-classes">
+                        <i class="fas fa-calendar-check"></i>
+                        Class Management
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#admin-reports" class="nav-link" data-page="admin-reports">
+                        <i class="fas fa-chart-bar"></i>
+                        Reports
+                    </a>
+                </div>
+            </div>
+
+            <!-- System Navigation -->
+            <div class="nav-section">
+                <div class="nav-section-title">System</div>
+                <div class="nav-item">
+                    <a href="#settings" class="nav-link" data-page="settings">
+                        <i class="fas fa-cog"></i>
+                        Settings
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" onclick="logout()" class="nav-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <button class="mobile-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 id="pageTitle">Dashboard Overview</h1>
+                </div>
+                <div class="top-bar-actions">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationCount">3</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area" id="contentArea">
+                <!-- Overview Page (Default) -->
+                <div class="page-content" id="page-overview">
+                    <div class="page-header">
+                        <h2 class="page-title">Welcome to FitZone!</h2>
+                        <p class="page-subtitle">Your fitness journey starts here</p>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-content">
+                                <div class="stat-info">
+                                    <h3 id="workoutsThisMonth">12</h3>
+                                    <p>Workouts This Month</p>
+                                </div>
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                    <i class="fas fa-dumbbell"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-content">
+                                <div class="stat-info">
+                                    <h3 id="classesBooked">8</h3>
+                                    <p>Classes Booked</p>
+                                </div>
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-content">
+                                <div class="stat-info">
+                                    <h3 id="caloriesBurned">2,340</h3>
+                                    <p>Calories Burned</p>
+                                </div>
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                    <i class="fas fa-fire"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-content">
+                                <div class="stat-info">
+                                    <h3 id="membershipDays">127</h3>
+                                    <p>Days Active</p>
+                                </div>
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                    <i class="fas fa-trophy"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Classes -->
+                    <div class="section-card">
+                        <div class="section-header">
+                            <h3 class="section-title">Upcoming Classes</h3>
+                            <a href="#classes" class="btn btn-outline" onclick="showPage('classes')">View All</a>
+                        </div>
+                        <div class="section-content">
+                            <div id="upcomingClassesList" class="loading">
+                                <i class="fas fa-spinner fa-spin"></i> Loading upcoming classes...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="section-card">
+                        <div class="section-header">
+                            <h3 class="section-title">Recent Activity</h3>
+                        </div>
+                        <div class="section-content">
+                            <div id="recentActivityList">
+                                <div class="activity-item">
+                                    <div class="activity-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                        <i class="fas fa-dumbbell"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <h4 class="activity-title">Completed Upper Body Workout</h4>
+                                        <p class="activity-subtitle">45 minutes • Burned 320 calories</p>
+                                    </div>
+                                    <div class="activity-time">2 hours ago</div>
+                                </div>
+
+                                <div class="activity-item">
+                                    <div class="activity-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                        <i class="fas fa-calendar-check"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <h4 class="activity-title">Booked Yoga Class</h4>
+                                        <p class="activity-subtitle">Tomorrow at 9:00 AM with Sarah Johnson</p>
+                                    </div>
+                                    <div class="activity-time">1 day ago</div>
+                                </div>
+
+                                <div class="activity-item">
+                                    <div class="activity-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <h4 class="activity-title">Personal Training Session</h4>
+                                        <p class="activity-subtitle">1 hour with Mike Thompson</p>
+                                    </div>
+                                    <div class="activity-time">3 days ago</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other pages will be loaded dynamically -->
+                <div class="page-content hidden" id="page-classes">
+                    <div class="page-header">
+                        <h2 class="page-title">Fitness Classes</h2>
+                        <p class="page-subtitle">Discover and book your favorite classes</p>
+                    </div>
+                    <div class="class-grid" id="classGrid">
+                        <!-- Classes will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Placeholder for other pages -->
+                <div class="page-content hidden" id="page-trainers">
+                    <div class="page-header">
+                        <h2 class="page-title">Personal Trainers</h2>
+                        <p class="page-subtitle">Meet our certified fitness professionals</p>
+                    </div>
+                    <div id="trainersContent" class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading trainers...
+                    </div>
+                </div>
+
+                <!-- Add more page placeholders as needed -->
+            </div>
+        </main>
+    </div>
+
+    <script src="js/unified-dashboard.js"></script>
+</body>
+</html>

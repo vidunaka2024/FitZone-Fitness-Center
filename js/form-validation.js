@@ -6,6 +6,7 @@
     // Initialize form validation when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
         initializeFormValidation();
+        initializeDemoLogins();
     });
 
     function initializeFormValidation() {
@@ -548,22 +549,28 @@
         if (response.success) {
             showFormSuccess(form, response.message);
             
-            // Reset form on successful submission (except login form)
-            if (form.id !== 'login-form') {
-                setTimeout(() => resetForm(form), 2000);
-            } else {
-                // Redirect on successful login
-                if (response.redirect) {
-                    window.location.href = response.redirect;
+            // Handle login form specifically
+            if (form.id === 'login-form') {
+                // Store session data for unified dashboard
+                if (response.session_data) {
+                    localStorage.setItem('fitzone_session', JSON.stringify(response.session_data));
                 }
+                
+                // Redirect to unified dashboard
+                setTimeout(() => {
+                    window.location.href = response.redirect || 'unified-dashboard.html';
+                }, 1000);
+            } else {
+                // Reset other forms on successful submission
+                setTimeout(() => resetForm(form), 2000);
             }
         } else {
-            if (response.field_errors) {
+            if (response.errors) {
                 // Show field-specific errors
-                Object.keys(response.field_errors).forEach(fieldName => {
+                Object.keys(response.errors).forEach(fieldName => {
                     const field = form.querySelector(`[name="${fieldName}"]`);
                     if (field) {
-                        showFieldError(field, response.field_errors[fieldName]);
+                        showFieldError(field, response.errors[fieldName]);
                     }
                 });
             }
@@ -618,6 +625,47 @@
         }
     }
 
+    // Initialize demo login buttons
+    function initializeDemoLogins() {
+        const demoButtons = document.querySelectorAll('.demo-login');
+        
+        demoButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const email = this.getAttribute('data-email');
+                const password = this.getAttribute('data-password');
+                
+                // Fill form fields
+                const emailField = document.getElementById('email');
+                const passwordField = document.getElementById('password');
+                
+                if (emailField && passwordField) {
+                    emailField.value = email;
+                    passwordField.value = password;
+                    
+                    // Submit the form
+                    const form = emailField.closest('form');
+                    if (form) {
+                        // Show loading state on button
+                        const originalText = this.textContent;
+                        this.textContent = 'Logging in...';
+                        this.disabled = true;
+                        
+                        // Auto-submit after a short delay
+                        setTimeout(() => {
+                            if (validateForm(form)) {
+                                handleFormSubmission(form);
+                            }
+                            
+                            // Restore button state
+                            this.textContent = originalText;
+                            this.disabled = false;
+                        }, 500);
+                    }
+                }
+            });
+        });
+    }
+
     // Add shake animation CSS
     const style = document.createElement('style');
     style.textContent = `
@@ -639,6 +687,16 @@
         .error:focus {
             outline: none;
             box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        .demo-login:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .demo-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
     `;
     document.head.appendChild(style);
