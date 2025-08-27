@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FitZone Fitness Center</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body class="auth-page">
+    <?php include 'php/includes/header.php'; ?>
+    
+    <main class="auth-main">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <img src="images/logo.png" alt="FitZone Logo" class="auth-logo">
+                    <h1>Welcome Back</h1>
+                    <p>Sign in to your FitZone account</p>
+                </div>
+
+                <form class="auth-form" id="login-form" action="php/auth/login.php" method="POST">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required>
+                        <span class="error-message" id="email-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-input">
+                            <input type="password" id="password" name="password" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                                <span class="show-text">Show</span>
+                                <span class="hide-text" style="display: none;">Hide</span>
+                            </button>
+                        </div>
+                        <span class="error-message" id="password-error"></span>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="remember_me" value="1">
+                            <span class="checkmark"></span>
+                            Remember me
+                        </label>
+                        <a href="#" class="forgot-link">Forgot password?</a>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+                            <span class="btn-text">Sign In</span>
+                            <span class="btn-loading" style="display: none;">Signing In...</span>
+                        </button>
+                    </div>
+
+                    <div class="form-result" id="form-result" style="display: none;">
+                        <div class="error-message" id="login-error"></div>
+                    </div>
+                </form>
+
+                <div class="auth-divider">
+                    <span>or</span>
+                </div>
+
+                <div class="social-login">
+                    <button class="btn btn-social btn-google">
+                        <img src="images/google-icon.png" alt="Google">
+                        Continue with Google
+                    </button>
+                    <button class="btn btn-social btn-facebook">
+                        <img src="images/facebook-icon.png" alt="Facebook">
+                        Continue with Facebook
+                    </button>
+                </div>
+
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="register.html">Sign up for free</a></p>
+                </div>
+            </div>
+
+            <div class="auth-side">
+                <div class="auth-side-content">
+                    <h2>Your Fitness Journey Awaits</h2>
+                    <ul class="benefits-list">
+                        <li>Track your workout progress</li>
+                        <li>Book classes and personal training</li>
+                        <li>Access exclusive member content</li>
+                        <li>Connect with the FitZone community</li>
+                    </ul>
+                    <div class="testimonial">
+                        <blockquote>"FitZone has completely transformed my approach to fitness. The community and trainers are incredible!"</blockquote>
+                        <cite>- Jessica M., Member since 2022</cite>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <?php include 'php/includes/footer.php'; ?>
+    <script src="js/main.js"></script>
+    <script src="js/form-validation.js"></script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+# FitZone Fitness Center - Git Ignore File
+
+# Sensitive Configuration Files
+.env
+php/config/config.php
+
+# Database Credentials (if any local configs)
+local_config.php
+database_config.local.php
+
+# Log Files
+*.log
+logs/
+error.log
+access.log
+
+# Cache Files
+cache/
+temp/
+tmp/
+
+# User Uploads (can be large)
+uploads/profile-pics/*
+!uploads/profile-pics/default-avatar.jpg
+uploads/documents/*
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Temporary Files
+*.tmp
+*.bak
+*.backup
+*.old
+
+# Node modules (if using any frontend build tools)
+node_modules/
+package-lock.json
+yarn.lock
+
+# PHP Composer (if used)
+vendor/
+composer.lock
+
+# Test Files (remove after testing)
+test-*.php
+debug-*.php
+
+# Setup Files (remove in production)
+setup.php
+
+# Backup Files
+backup/
+*.sql.gz
+*.sql.backup
+
+# System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# PHP Session Files
+sessions/
+
+# Generated Reports
+reports/export-*

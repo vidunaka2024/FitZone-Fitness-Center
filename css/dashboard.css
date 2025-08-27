@@ -1,0 +1,639 @@
+/* FitZone Fitness Center - Dashboard Specific Styles */
+
+/* Dashboard Layout */
+.dashboard-page {
+    background: #f8f9fa;
+}
+
+.dashboard-main {
+    padding: 0;
+}
+
+.dashboard-container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: calc(100vh - 80px);
+    gap: 0;
+}
+
+/* Sidebar Styles */
+.dashboard-sidebar {
+    background: white;
+    border-right: 1px solid #e9ecef;
+    padding: 2rem 0;
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+}
+
+.user-profile {
+    text-align: center;
+    padding: 0 1.5rem 2rem;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 2rem;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    border: 3px solid #e74c3c;
+}
+
+.user-name {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.user-membership {
+    color: #e74c3c;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.member-since {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Navigation Styles */
+.dashboard-nav ul {
+    list-style: none;
+}
+
+.dashboard-nav .nav-link {
+    display: block;
+    padding: 1rem 1.5rem;
+    color: #495057;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.dashboard-nav .nav-link:hover {
+    background: #f8f9fa;
+    color: #e74c3c;
+    border-left-color: #e74c3c;
+}
+
+.dashboard-nav .nav-link.active {
+    background: #fff5f5;
+    color: #e74c3c;
+    border-left-color: #e74c3c;
+    font-weight: 500;
+}
+
+/* Quick Actions */
+.quick-actions {
+    padding: 1.5rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.quick-actions h4 {
+    margin-bottom: 1rem;
+    color: #495057;
+    font-size: 1rem;
+}
+
+.quick-actions .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+/* Main Content Area */
+.dashboard-content {
+    padding: 2rem;
+    overflow-y: auto;
+    height: calc(100vh - 80px);
+}
+
+.dashboard-header {
+    margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-header p {
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.stat-info h3 {
+    font-size: 2rem;
+    color: #e74c3c;
+    margin-bottom: 0.25rem;
+    font-weight: 700;
+}
+
+.stat-info p {
+    color: #6c757d;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Widget Styles */
+.widget {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+
+.widget h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.5rem;
+}
+
+/* Schedule List */
+.schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.schedule-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #e74c3c;
+}
+
+.schedule-time {
+    font-weight: 600;
+    color: #e74c3c;
+    min-width: 80px;
+}
+
+.schedule-details h4 {
+    margin-bottom: 0.25rem;
+    color: #2c3e50;
+}
+
+.schedule-details p {
+    color: #6c757d;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Progress Chart */
+.progress-chart {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.progress-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.progress-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.progress-item:last-child {
+    border-bottom: none;
+}
+
+.progress-item .label {
+    color: #6c757d;
+}
+
+.progress-item .value {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Achievement List */
+.achievement-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.achievement-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    align-items: center;
+}
+
+.achievement-badge {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    background: #fff3cd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.achievement-details h4 {
+    margin-bottom: 0.25rem;
+    color: #2c3e50;
+}
+
+.achievement-details p {
+    color: #6c757d;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Quick Stats */
+.quick-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.quick-stat {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.quick-stat h4 {
+    margin-bottom: 0.5rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-weight: normal;
+}
+
+.quick-stat p {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.trend {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.trend.down {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.trend.up {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.trend.neutral {
+    background: #d4edda;
+    color: #155724;
+}
+
+/* Workout Section */
+.workout-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #dee2e6;
+    background: white;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #6c757d;
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+    background: #e74c3c;
+    color: white;
+    border-color: #e74c3c;
+}
+
+.workout-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.workout-item {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    gap: 1rem;
+    align-items: center;
+}
+
+.workout-date {
+    font-weight: 600;
+    color: #e74c3c;
+    font-size: 0.9rem;
+}
+
+.workout-details h3 {
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+.workout-details p {
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.workout-exercises {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.workout-exercises span {
+    background: #f8f9fa;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.workout-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+}
+
+/* Class Tabs */
+.class-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.tab-btn {
+    padding: 0.75rem 1rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    color: #6c757d;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active,
+.tab-btn:hover {
+    color: #e74c3c;
+    border-bottom-color: #e74c3c;
+}
+
+.class-content {
+    display: none;
+}
+
+.class-content.active {
+    display: block;
+}
+
+.class-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.class-booking {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.class-info h3 {
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+.class-info p {
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.class-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Profile Form */
+.profile-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.form-section h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Responsive Dashboard Styles */
+@media screen and (max-width: 1024px) {
+    .dashboard-container {
+        grid-template-columns: 220px 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .dashboard-container {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-sidebar {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #e9ecef;
+        padding: 1rem 0;
+    }
+
+    .dashboard-nav ul {
+        display: flex;
+        overflow-x: auto;
+        gap: 1rem;
+        padding: 0 1rem;
+    }
+
+    .dashboard-nav li {
+        white-space: nowrap;
+    }
+
+    .dashboard-nav .nav-link {
+        padding: 0.5rem 1rem;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+        border-radius: 20px;
+    }
+
+    .dashboard-nav .nav-link.active,
+    .dashboard-nav .nav-link:hover {
+        border-left: none;
+        border-bottom-color: #e74c3c;
+        background: #f8f9fa;
+    }
+
+    .dashboard-content {
+        padding: 1rem;
+        height: auto;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .workout-item {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .workout-actions {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .class-booking {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .class-actions {
+        justify-content: center;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2rem;
+    }
+}
