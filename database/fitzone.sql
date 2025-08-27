@@ -62,7 +62,7 @@ CREATE TABLE `user_profiles` (
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `user_id` (`user_id`),
+  UNIQUE KEY `idx_user_profiles_user_id_unique` (`user_id`),
   CONSTRAINT `user_profiles_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -74,9 +74,9 @@ CREATE TABLE `remember_tokens` (
   `expires_at` timestamp NOT NULL,
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  KEY `token` (`token`),
-  KEY `expires_at` (`expires_at`),
+  KEY `idx_remember_tokens_user_id` (`user_id`),
+  KEY `idx_remember_tokens_token` (`token`),
+  KEY `idx_remember_tokens_expires_at` (`expires_at`),
   CONSTRAINT `remember_tokens_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -92,8 +92,8 @@ CREATE TABLE `failed_login_attempts` (
   `user_agent` text,
   `attempted_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `ip_address` (`ip_address`),
-  KEY `attempted_at` (`attempted_at`)
+  KEY `idx_failed_login_ip_address` (`ip_address`),
+  KEY `idx_failed_login_attempted_at` (`attempted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Blocked IPs table
@@ -104,8 +104,8 @@ CREATE TABLE `blocked_ips` (
   `blocked_until` timestamp NOT NULL,
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `ip_address` (`ip_address`),
-  KEY `blocked_until` (`blocked_until`)
+  KEY `idx_blocked_ips_ip_address` (`ip_address`),
+  KEY `idx_blocked_ips_blocked_until` (`blocked_until`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Rate limiting table
@@ -115,8 +115,8 @@ CREATE TABLE `rate_limits` (
   `expires_at` timestamp NOT NULL,
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `key_name` (`key_name`),
-  KEY `expires_at` (`expires_at`)
+  KEY `idx_rate_limits_key_name` (`key_name`),
+  KEY `idx_rate_limits_expires_at` (`expires_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Activity logs table
@@ -130,9 +130,9 @@ CREATE TABLE `activity_logs` (
   `user_agent` text,
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  KEY `action` (`action`),
-  KEY `created_at` (`created_at`),
+  KEY `idx_activity_logs_user_id` (`user_id`),
+  KEY `idx_activity_logs_action` (`action`),
+  KEY `idx_activity_logs_created_at` (`created_at`),
   CONSTRAINT `activity_logs_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -146,8 +146,8 @@ CREATE TABLE `user_sessions` (
   `user_agent` text,
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  KEY `created_at` (`created_at`),
+  KEY `idx_user_sessions_user_id` (`user_id`),
+  KEY `idx_user_sessions_created_at` (`created_at`),
   CONSTRAINT `user_sessions_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -172,9 +172,9 @@ CREATE TABLE `memberships` (
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  KEY `status` (`status`),
-  KEY `next_billing_date` (`next_billing_date`),
+  KEY `idx_memberships_user_id` (`user_id`),
+  KEY `idx_memberships_status` (`status`),
+  KEY `idx_memberships_next_billing_date` (`next_billing_date`),
   CONSTRAINT `memberships_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -194,10 +194,10 @@ CREATE TABLE `billing_transactions` (
   `processed_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  KEY `membership_id` (`membership_id`),
-  KEY `status` (`status`),
-  KEY `created_at` (`created_at`),
+  KEY `idx_billing_transactions_user_id` (`user_id`),
+  KEY `idx_billing_transactions_membership_id` (`membership_id`),
+  KEY `idx_billing_transactions_status` (`status`),
+  KEY `idx_billing_transactions_created_at` (`created_at`),
   CONSTRAINT `billing_transactions_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `billing_transactions_membership_id_fk` FOREIGN KEY (`membership_id`) REFERENCES `memberships` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -223,9 +223,9 @@ CREATE TABLE `classes` (
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `type` (`type`),
-  KEY `difficulty_level` (`difficulty_level`),
-  KEY `status` (`status`)
+  KEY `idx_classes_type` (`type`),
+  KEY `idx_classes_difficulty_level` (`difficulty_level`),
+  KEY `idx_classes_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Class schedules table
@@ -244,10 +244,10 @@ CREATE TABLE `class_schedules` (
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `class_id` (`class_id`),
-  KEY `trainer_id` (`trainer_id`),
-  KEY `date` (`date`),
-  KEY `status` (`status`),
+  KEY `idx_class_schedules_class_id` (`class_id`),
+  KEY `idx_class_schedules_trainer_id` (`trainer_id`),
+  KEY `idx_class_schedules_date` (`date`),
+  KEY `idx_class_schedules_status` (`status`),
   CONSTRAINT `class_schedules_class_id_fk` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE,
   CONSTRAINT `class_schedules_trainer_id_fk` FOREIGN KEY (`trainer_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -266,9 +266,9 @@ CREATE TABLE `class_bookings` (
   `notes` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_user_schedule` (`user_id`, `schedule_id`),
-  KEY `schedule_id` (`schedule_id`),
-  KEY `booking_status` (`booking_status`),
-  KEY `booking_date` (`booking_date`),
+  KEY `idx_class_bookings_schedule_id` (`schedule_id`),
+  KEY `idx_class_bookings_booking_status` (`booking_status`),
+  KEY `idx_class_bookings_booking_date` (`booking_date`),
   CONSTRAINT `class_bookings_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `class_bookings_schedule_id_fk` FOREIGN KEY (`schedule_id`) REFERENCES `class_schedules` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -293,9 +293,9 @@ CREATE TABLE `trainer_profiles` (
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `user_id` (`user_id`),
-  KEY `is_accepting_clients` (`is_accepting_clients`),
-  KEY `rating` (`rating`),
+  UNIQUE KEY `idx_trainer_profiles_user_id_unique` (`user_id`),
+  KEY `idx_trainer_profiles_is_accepting_clients` (`is_accepting_clients`),
+  KEY `idx_trainer_profiles_rating` (`rating`),
   CONSTRAINT `trainer_profiles_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -318,10 +318,10 @@ CREATE TABLE `pt_appointments` (
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `client_id` (`client_id`),
-  KEY `trainer_id` (`trainer_id`),
-  KEY `appointment_date` (`appointment_date`),
-  KEY `status` (`status`),
+  KEY `idx_pt_appointments_client_id` (`client_id`),
+  KEY `idx_pt_appointments_trainer_id` (`trainer_id`),
+  KEY `idx_pt_appointments_appointment_date` (`appointment_date`),
+  KEY `idx_pt_appointments_status` (`status`),
   CONSTRAINT `pt_appointments_client_id_fk` FOREIGN KEY (`client_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `pt_appointments_trainer_id_fk` FOREIGN KEY (`trainer_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -348,9 +348,9 @@ CREATE TABLE `workouts` (
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  KEY `workout_date` (`workout_date`),
-  KEY `type` (`type`),
+  KEY `idx_workouts_user_id` (`user_id`),
+  KEY `idx_workouts_workout_date` (`workout_date`),
+  KEY `idx_workouts_type` (`type`),
   CONSTRAINT `workouts_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -368,8 +368,8 @@ CREATE TABLE `workout_exercises` (
   `notes` text,
   `order_index` int(11) DEFAULT 0,
   PRIMARY KEY (`id`),
-  KEY `workout_id` (`workout_id`),
-  KEY `order_index` (`order_index`),
+  KEY `idx_workout_exercises_workout_id` (`workout_id`),
+  KEY `idx_workout_exercises_order_index` (`order_index`),
   CONSTRAINT `workout_exercises_workout_id_fk` FOREIGN KEY (`workout_id`) REFERENCES `workouts` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -390,8 +390,8 @@ CREATE TABLE `body_measurements` (
   `notes` text,
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  KEY `measurement_date` (`measurement_date`),
+  KEY `idx_body_measurements_user_id` (`user_id`),
+  KEY `idx_body_measurements_measurement_date` (`measurement_date`),
   CONSTRAINT `body_measurements_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -412,8 +412,8 @@ CREATE TABLE `newsletter_subscribers` (
   `ip_address` varchar(45) DEFAULT NULL,
   `user_agent` text,
   PRIMARY KEY (`id`),
-  KEY `email` (`email`),
-  KEY `status` (`status`)
+  KEY `idx_newsletter_email` (`email`),
+  KEY `idx_newsletter_subscribers_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Contact messages table
@@ -434,9 +434,9 @@ CREATE TABLE `contact_messages` (
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `status` (`status`),
-  KEY `created_at` (`created_at`),
-  KEY `assigned_to` (`assigned_to`),
+  KEY `idx_contact_messages_status` (`status`),
+  KEY `idx_contact_messages_created_at` (`created_at`),
+  KEY `idx_contact_messages_assigned_to` (`assigned_to`),
   CONSTRAINT `contact_messages_assigned_to_fk` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -444,7 +444,7 @@ CREATE TABLE `contact_messages` (
 CREATE TABLE `blog_posts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(200) NOT NULL,
-  `slug` varchar(200) NOT NULL UNIQUE,
+  `slug` varchar(200) NOT NULL,
   `content` longtext NOT NULL,
   `excerpt` text,
   `featured_image` varchar(255) DEFAULT NULL,
@@ -458,9 +458,9 @@ CREATE TABLE `blog_posts` (
   `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `slug` (`slug`),
-  KEY `author_id` (`author_id`),
-  KEY `status` (`status`),
-  KEY `published_at` (`published_at`),
+  KEY `idx_blog_posts_author_id` (`author_id`),
+  KEY `idx_blog_posts_status` (`status`),
+  KEY `idx_blog_posts_published_at` (`published_at`),
   CONSTRAINT `blog_posts_author_id_fk` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -479,8 +479,8 @@ CREATE TABLE `system_settings` (
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `setting_key` (`setting_key`),
-  KEY `is_public` (`is_public`)
+  KEY `idx_system_settings_setting_key` (`setting_key`),
+  KEY `idx_system_settings_is_public` (`is_public`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ========================================
@@ -513,12 +513,12 @@ INSERT INTO `classes` (`name`, `description`, `type`, `difficulty_level`, `durat
 ('Pilates Core', 'Core-focused exercises improving strength, flexibility, and posture', 'flexibility', 'beginner', 55, 18, 250),
 ('Bootcamp', 'Military-style workout combining cardio and strength training', 'mixed', 'intermediate', 50, 20, 475);
 
--- Create indexes for better performance
-CREATE INDEX idx_users_email_status ON users(email, status);
-CREATE INDEX idx_class_schedules_date_status ON class_schedules(date, status);
-CREATE INDEX idx_workouts_user_date ON workouts(user_id, workout_date);
-CREATE INDEX idx_activity_logs_user_created ON activity_logs(user_id, created_at);
-CREATE INDEX idx_memberships_user_status ON memberships(user_id, status);
+-- Additional composite indexes for better performance
+CREATE INDEX idx_users_email_status_composite ON users(email, status);
+CREATE INDEX idx_class_schedules_date_status_composite ON class_schedules(date, status);
+CREATE INDEX idx_workouts_user_date_composite ON workouts(user_id, workout_date);
+CREATE INDEX idx_activity_logs_user_created_composite ON activity_logs(user_id, created_at);
+CREATE INDEX idx_memberships_user_status_composite ON memberships(user_id, status);
 
 COMMIT;
 
