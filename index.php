@@ -1,23 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitZone Fitness Center - Your Ultimate Fitness Destination</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/responsive.css">
-</head>
-<body>
-    <?php include 'php/includes/header.php'; ?>
+<?php 
+// FitZone Fitness Center - Home Page - Redirect to Login
+session_start();
+define('FITZONE_ACCESS', true);
+require_once 'php/config/database.php';
+require_once 'php/includes/functions.php';
+
+// Redirect to login page
+header('Location: login.php');
+exit;
+?>
     
-    <main>
         <section class="hero">
             <div class="hero-content">
                 <h1>Transform Your Body, Transform Your Life</h1>
                 <p>Join FitZone and discover the best version of yourself with our state-of-the-art facilities and expert trainers.</p>
                 <div class="hero-buttons">
-                    <a href="membership.html" class="btn btn-primary">Join Now</a>
-                    <a href="classes.html" class="btn btn-secondary">View Classes</a>
+                    <a href="membership.php" class="btn btn-primary">Join Now</a>
+                    <a href="classes.php" class="btn btn-secondary">View Classes</a>
                 </div>
             </div>
             <div class="hero-image">
@@ -53,28 +52,24 @@
             <div class="container">
                 <h2>Quick Access</h2>
                 <div class="links-grid">
-                    <a href="classes.html" class="quick-link">
+                    <a href="classes.php" class="quick-link">
                         <h3>Classes</h3>
                         <p>Browse our fitness programs</p>
                     </a>
-                    <a href="trainers.html" class="quick-link">
+                    <a href="trainers.php" class="quick-link">
                         <h3>Trainers</h3>
                         <p>Meet our expert team</p>
                     </a>
-                    <a href="membership.html" class="quick-link">
+                    <a href="membership.php" class="quick-link">
                         <h3>Membership</h3>
                         <p>Choose your plan</p>
                     </a>
-                    <a href="contact.html" class="quick-link">
+                    <a href="contact.php" class="quick-link">
                         <h3>Contact</h3>
                         <p>Get in touch</p>
                     </a>
                 </div>
             </div>
         </section>
-    </main>
 
-    <?php include 'php/includes/footer.php'; ?>
-    <script src="js/main.js"></script>
-</body>
-</html>
+<?php include 'php/includes/footer.php'; ?>

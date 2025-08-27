@@ -217,6 +217,11 @@ class UserManager {
             // Insert user
             $userId = $this->db->insert('users', $userData);
             
+            // Check if user was actually created
+            if (!$userId || $userId == 0) {
+                throw new Exception('Failed to create user - no ID returned');
+            }
+            
             // Create user profile
             $profileData = [
                 'user_id' => $userId,

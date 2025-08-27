@@ -157,8 +157,10 @@ function loginUser($email, $password, $rememberMe = false) {
             return ['success' => false, 'message' => 'Account is not active'];
         }
         
-        // Start session
-        session_start();
+        // Start session if not already started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_email'] = $user['email'];
         $_SESSION['user_role'] = $user['role'];
@@ -327,19 +329,17 @@ function validateEmail($email) {
 function validatePassword($password) {
     $errors = [];
     
-    if (strlen($password) < 8) {
-        $errors[] = 'Password must be at least 8 characters long';
+    // More reasonable password requirements to match client-side validation
+    if (strlen($password) < 6) {
+        $errors[] = 'Password must be at least 6 characters long';
     }
     
-    if (!preg_match('/[A-Z]/', $password)) {
-        $errors[] = 'Password must contain at least one uppercase letter';
+    if (!preg_match('/[a-zA-Z]/', $password)) {
+        $errors[] = 'Password must contain at least one letter';
     }
     
-    if (!preg_match('/[a-z]/', $password)) {
-        $errors[] = 'Password must contain at least one lowercase letter';
-    }
-    
-    if (!preg_match('/\d/', $password)) {
+    // For passwords shorter than 8 chars, require a number
+    if (strlen($password) < 8 && !preg_match('/\d/', $password)) {
         $errors[] = 'Password must contain at least one number';
     }
     
@@ -827,7 +827,8 @@ function errorResponse($message = 'Error occurred', $errors = [], $statusCode = 
 
 <?php
 // Initialize error reporting based on environment
-if ($_ENV['ENVIRONMENT'] === 'development') {
+$environment = $_ENV['ENVIRONMENT'] ?? 'development';
+if ($environment === 'development') {
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
 } else {

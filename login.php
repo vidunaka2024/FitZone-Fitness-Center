@@ -1,14 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - FitZone Fitness Center</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/responsive.css">
-</head>
-<body class="auth-page">
-    <?php include 'php/includes/header.php'; ?>
+<?php
+// FitZone Fitness Center - Login Page
+session_start();
+define('FITZONE_ACCESS', true);
+require_once 'php/config/database.php';
+require_once 'php/includes/functions.php';
+
+// Redirect if already logged in
+if (isLoggedIn()) {
+    header('Location: dashboard.php');
+    exit;
+}
+
+include 'php/includes/header.php';
+?>
     
     <main class="auth-main">
         <div class="auth-container">
@@ -75,7 +79,7 @@
                 </div>
 
                 <div class="auth-footer">
-                    <p>Don't have an account? <a href="register.html">Sign up for free</a></p>
+                    <p>Don't have an account? <a href="register.php">Sign up for free</a></p>
                 </div>
             </div>
 
@@ -98,7 +102,4 @@
     </main>
 
     <?php include 'php/includes/footer.php'; ?>
-    <script src="js/main.js"></script>
     <script src="js/form-validation.js"></script>
-</body>
-</html>

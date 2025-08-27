@@ -17,6 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     errorResponse('Invalid request method', [], 405);
 }
 
+// Check IP block status before processing
+if (isIPBlocked($_SERVER['REMOTE_ADDR'] ?? '')) {
+    errorResponse('Your IP address has been temporarily blocked due to suspicious activity.', [], 429);
+}
+
 // Rate limiting for login attempts
 if (!checkRateLimit('login', 5, 900)) { // 5 attempts per 15 minutes
     errorResponse('Too many login attempts. Please try again later.', [], 429);
@@ -49,15 +54,29 @@ try {
     $loginResult = loginUser($email, $password, $rememberMe);
     
     if ($loginResult['success']) {
-        // Determine redirect URL
-        $redirectUrl = 'dashboard.php';
+        // Determine redirect URL based on user role
+        $userRole = $loginResult['user']['role'];
         
-        // Check for return URL
+        if ($userRole === 'admin' || $userRole === 'staff') {
+            $redirectUrl = 'admin-dashboard.php';
+        } else {
+            $redirectUrl = 'dashboard.php';
+        }
+        
+        // Check for return URL (but only if it's appropriate for their role)
         if (!empty($_POST['return_url'])) {
             $returnUrl = filter_var($_POST['return_url'], FILTER_SANITIZE_URL);
             // Validate that it's a relative URL (security)
             if (strpos($returnUrl, '/') === 0 && strpos($returnUrl, '//') === false) {
-                $redirectUrl = ltrim($returnUrl, '/');
+                $cleanReturnUrl = ltrim($returnUrl, '/');
+                
+                // Security check: don't allow regular users to access admin areas
+                if ($userRole !== 'admin' && $userRole !== 'staff' && 
+                    (strpos($cleanReturnUrl, 'admin') !== false)) {
+                    // Keep default redirect for non-admin users trying to access admin areas
+                } else {
+                    $redirectUrl = $cleanReturnUrl;
+                }
             }
         }
         
@@ -165,8 +184,4 @@ function isIPBlocked($ip) {
     }
 }
 
-// Check IP block status before processing (moved to beginning would be better)
-if (isIPBlocked($_SERVER['REMOTE_ADDR'] ?? '')) {
-    errorResponse('Your IP address has been temporarily blocked due to suspicious activity.', [], 429);
-}
 ?>

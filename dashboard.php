@@ -1,24 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Dashboard - FitZone Fitness Center</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/responsive.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-</head>
-<body class="dashboard-page">
-    <?php include 'php/includes/header.php'; ?>
+<?php
+// FitZone Fitness Center - Dashboard Page
+session_start();
+define('FITZONE_ACCESS', true);
+require_once 'php/config/database.php';
+require_once 'php/includes/functions.php';
+
+// Require login to access dashboard
+requireLogin();
+
+// Get user data
+$user = getUserById($_SESSION['user_id']);
+
+// If user not found or inactive, logout
+if (!$user || $user['status'] !== 'active') {
+    session_destroy();
+    header('Location: login.php?error=account_inactive');
+    exit;
+}
+
+// Redirect admin/staff users to admin dashboard
+if ($user['role'] === 'admin' || $user['role'] === 'staff') {
+    header('Location: admin-dashboard.php');
+    exit;
+}
+
+include 'php/includes/header.php';
+?>
     
     <main class="dashboard-main">
         <div class="dashboard-container">
             <aside class="dashboard-sidebar">
                 <div class="user-profile">
-                    <img src="uploads/profile-pics/default-avatar.jpg" alt="User Profile" class="profile-avatar">
-                    <h3 class="user-name">John Doe</h3>
-                    <p class="user-membership">Premium Member</p>
-                    <p class="member-since">Member since March 2024</p>
+                    <img src="<?php echo getUserAvatar($user); ?>" alt="User Profile" class="profile-avatar">
+                    <h3 class="user-name"><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></h3>
+                    <p class="user-membership"><?php echo ucfirst($user['membership_plan']); ?> Member</p>
+                    <p class="member-since">Member since <?php echo date('F Y', strtotime($user['created_at'])); ?></p>
                 </div>
 
                 <nav class="dashboard-nav">

@@ -185,11 +185,11 @@
                 <h2>Ready to Start Your Fitness Journey?</h2>
                 <p>Join FitZone today and transform your life with our expert guidance and state-of-the-art facilities.</p>
                 <div class="signup-options">
-                    <a href="register.html" class="btn btn-primary btn-large">Join Online</a>
-                    <a href="contact.html" class="btn btn-secondary btn-large">Visit Us Today</a>
+                    <a href="register.php" class="btn btn-primary btn-large">Join Online</a>
+                    <a href="contact.php" class="btn btn-secondary btn-large">Visit Us Today</a>
                 </div>
                 <div class="trial-offer">
-                    <p><strong>New members:</strong> Get your first week FREE! <a href="register.html">Sign up now</a></p>
+                    <p><strong>New members:</strong> Get your first week FREE! <a href="register.php">Sign up now</a></p>
                 </div>
             </div>
         </section>

@@ -5,14 +5,18 @@
 
     // Initialize form validation when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, initializing form validation...');
         initializeFormValidation();
     });
 
     function initializeFormValidation() {
+        console.log('Initializing form validation...');
         // Get all forms on the page
         const forms = document.querySelectorAll('form');
+        console.log('Found', forms.length, 'forms');
         
         forms.forEach(form => {
+            console.log('Setting up validation for form:', form.id);
             setupFormValidation(form);
         });
 
@@ -24,11 +28,16 @@
     }
 
     function setupFormValidation(form) {
+        console.log('Adding submit event listener to form:', form.id);
         form.addEventListener('submit', function(e) {
+            console.log('Form submit event triggered for:', this.id);
             e.preventDefault();
             
             if (validateForm(this)) {
+                console.log('Validation passed, proceeding to form submission');
                 handleFormSubmission(this);
+            } else {
+                console.log('Validation failed, not submitting form');
             }
         });
 
@@ -43,6 +52,7 @@
     }
 
     function validateForm(form) {
+        console.log('Validating form:', form.id);
         let isValid = true;
         const formData = new FormData(form);
         
@@ -51,10 +61,14 @@
 
         // Get all required fields
         const requiredFields = form.querySelectorAll('[required]');
+        console.log('Found', requiredFields.length, 'required fields');
         
         // Validate each required field
         requiredFields.forEach(field => {
-            if (!validateField(field)) {
+            console.log('Validating field:', field.name, 'Value:', field.value);
+            const fieldValid = validateField(field);
+            console.log('Field validation result for', field.name, ':', fieldValid);
+            if (!fieldValid) {
                 isValid = false;
             }
         });
@@ -76,6 +90,7 @@
                 break;
         }
 
+        console.log('Form validation result:', isValid);
         return isValid;
     }
 
@@ -115,12 +130,16 @@
                 errorMessage = 'Please enter a valid phone number.';
             }
         }
-        // Password validation
+        // Password validation (only for registration, not login)
         else if (type === 'password' && value && name === 'password') {
-            const passwordValidation = validatePassword(value);
-            if (!passwordValidation.isValid) {
-                isValid = false;
-                errorMessage = passwordValidation.message;
+            // Skip password strength validation for login forms
+            const form = field.form;
+            if (form && form.id !== 'login-form') {
+                const passwordValidation = validatePassword(value);
+                if (!passwordValidation.isValid) {
+                    isValid = false;
+                    errorMessage = passwordValidation.message;
+                }
             }
         }
         // Confirm password validation
@@ -371,23 +390,22 @@
     }
 
     function validatePassword(password) {
-        const checks = {
-            length: password.length >= 8,
-            uppercase: /[A-Z]/.test(password),
-            lowercase: /[a-z]/.test(password),
-            number: /\d/.test(password)
-        };
+        // More reasonable password requirements
+        if (password.length < 6) {
+            return { isValid: false, message: 'Password must be at least 6 characters long.' };
+        }
 
-        if (!checks.length) {
-            return { isValid: false, message: 'Password must be at least 8 characters long.' };
+        // Check for at least one letter and one number, OR strong password
+        const hasLetter = /[a-zA-Z]/.test(password);
+        const hasNumber = /\d/.test(password);
+        const isStrong = password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password);
+
+        if (!hasLetter) {
+            return { isValid: false, message: 'Password must contain at least one letter.' };
         }
-        if (!checks.uppercase) {
-            return { isValid: false, message: 'Password must contain at least one uppercase letter.' };
-        }
-        if (!checks.lowercase) {
-            return { isValid: false, message: 'Password must contain at least one lowercase letter.' };
-        }
-        if (!checks.number) {
+
+        // For passwords shorter than 8 chars, require a number
+        if (password.length < 8 && !hasNumber) {
             return { isValid: false, message: 'Password must contain at least one number.' };
         }
 
@@ -506,17 +524,29 @@
     }
 
     function handleFormSubmission(form) {
+        console.log('Form submission started for:', form.id);
         const formData = new FormData(form);
         const submitBtn = form.querySelector('button[type="submit"]');
         
         // Set loading state
         if (window.FitZone && window.FitZone.setLoadingState) {
             window.FitZone.setLoadingState(submitBtn, true);
+        } else {
+            // Fallback loading state
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoading = submitBtn.querySelector('.btn-loading');
+            if (btnText && btnLoading) {
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'inline';
+            }
+            submitBtn.disabled = true;
         }
 
         // Determine form action
         const action = form.getAttribute('action');
         const method = form.getAttribute('method') || 'GET';
+        
+        console.log('Submitting to:', action, 'Method:', method);
 
         // Submit form via AJAX
         fetch(action, {
@@ -526,8 +556,15 @@
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response received:', response);
+            return response.json();
+        })
         .then(data => {
+            console.log('Response data:', data);
+            if (data.errors) {
+                console.log('Server validation errors:', data.errors);
+            }
             handleFormResponse(form, data);
         })
         .catch(error => {
@@ -538,11 +575,21 @@
             // Remove loading state
             if (window.FitZone && window.FitZone.setLoadingState) {
                 window.FitZone.setLoadingState(submitBtn, false);
+            } else {
+                // Fallback loading state reset
+                const btnText = submitBtn.querySelector('.btn-text');
+                const btnLoading = submitBtn.querySelector('.btn-loading');
+                if (btnText && btnLoading) {
+                    btnText.style.display = 'inline';
+                    btnLoading.style.display = 'none';
+                }
+                submitBtn.disabled = false;
             }
         });
     }
 
     function handleFormResponse(form, response) {
+        console.log('Handling form response:', response);
         const formResult = form.querySelector('.form-result');
         
         if (response.success) {
@@ -553,8 +600,18 @@
                 setTimeout(() => resetForm(form), 2000);
             } else {
                 // Redirect on successful login
+                console.log('Login successful, checking redirect...');
+                console.log('Response.redirect:', response.redirect);
+                console.log('Response.data:', response.data);
                 if (response.redirect) {
+                    console.log('Redirecting to:', response.redirect);
                     window.location.href = response.redirect;
+                } else if (response.data && response.data.redirect) {
+                    console.log('Redirecting to data.redirect:', response.data.redirect);
+                    window.location.href = response.data.redirect;
+                } else {
+                    console.log('No redirect URL found, redirecting to dashboard.php');
+                    window.location.href = 'dashboard.php';
                 }
             }
         } else {

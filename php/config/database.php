@@ -20,7 +20,7 @@ class Database {
         $this->host = $_ENV['DB_HOST'] ?? 'localhost';
         $this->database = $_ENV['DB_NAME'] ?? 'fitzone_db';
         $this->username = $_ENV['DB_USERNAME'] ?? 'root';
-        $this->password = $_ENV['DB_PASSWORD'] ?? '';
+        $this->password = $_ENV['DB_PASSWORD'] ?? 'password';
         $this->port = $_ENV['DB_PORT'] ?? '3306';
         
         $this->connect();
@@ -105,8 +105,26 @@ class Database {
         
         $sql = "INSERT INTO {$table} ({$columns}) VALUES ({$placeholders})";
         
-        $this->query($sql, $data);
-        return $this->getConnection()->lastInsertId();
+        try {
+            $conn = $this->getConnection();
+            $stmt = $conn->prepare($sql);
+            $stmt->execute($data);
+            $lastId = $conn->lastInsertId();
+            
+            // If lastInsertId returns 0 but we're dealing with an auto-increment table,
+            // try to get the ID by querying for it
+            if (!$lastId && isset($data['email'])) {
+                $result = $conn->prepare("SELECT id FROM {$table} WHERE email = ? ORDER BY id DESC LIMIT 1");
+                $result->execute([$data['email']]);
+                $row = $result->fetch(PDO::FETCH_ASSOC);
+                $lastId = $row ? $row['id'] : 0;
+            }
+            
+            return $lastId;
+        } catch (PDOException $e) {
+            error_log('Database Insert Error: ' . $e->getMessage() . ' SQL: ' . $sql);
+            throw new Exception('Database query failed');
+        }
     }
 
     public function update($table, $data, $where, $whereParams = []) {
@@ -116,9 +134,28 @@ class Database {
         }
         $setClause = implode(', ', $setClause);
         
-        $sql = "UPDATE {$table} SET {$setClause} WHERE {$where}";
+        // Convert positional WHERE parameters to named parameters
+        $whereNamed = $where;
+        $namedWhereParams = [];
         
-        $params = array_merge($data, $whereParams);
+        // If we have positional parameters, convert them to named
+        if (!empty($whereParams) && is_array($whereParams) && array_keys($whereParams) === range(0, count($whereParams) - 1)) {
+            $paramIndex = 0;
+            $whereNamed = preg_replace_callback('/\?/', function($matches) use ($whereParams, &$paramIndex, &$namedWhereParams) {
+                $paramName = 'where_param_' . $paramIndex;
+                if (isset($whereParams[$paramIndex])) {
+                    $namedWhereParams[$paramName] = $whereParams[$paramIndex];
+                }
+                $paramIndex++;
+                return ':' . $paramName;
+            }, $where);
+        } else {
+            $namedWhereParams = $whereParams;
+        }
+        
+        $sql = "UPDATE {$table} SET {$setClause} WHERE {$whereNamed}";
+        
+        $params = array_merge($data, $namedWhereParams);
         $stmt = $this->query($sql, $params);
         
         return $stmt->rowCount();
@@ -184,7 +221,7 @@ class Database {
     private function __clone() {}
     
     // Prevent unserializing
-    private function __wakeup() {}
+    public function __wakeup() {}
 }
 
 // Global helper function to get database instance
@@ -196,14 +233,14 @@ function getDB() {
 function testDatabaseConnection() {
     try {
         $db = Database::getInstance();
-        $result = $db->selectOne("SELECT 1 as test, NOW() as current_time");
+        $result = $db->selectOne("SELECT 1 as test, NOW() as current_datetime");
         
         return [
             'success' => true,
             'message' => 'Database connection successful',
             'server_info' => $db->getServerInfo(),
             'server_version' => $db->getServerVersion(),
-            'current_time' => $result['current_time']
+            'current_time' => $result['current_datetime']
         ];
     } catch (Exception $e) {
         return [

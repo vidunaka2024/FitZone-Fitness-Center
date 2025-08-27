@@ -6,7 +6,9 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Define access constant
-define('FITZONE_ACCESS', true);
+if (!defined('FITZONE_ACCESS')) {
+    define('FITZONE_ACCESS', true);
+}
 
 // Include necessary files
 require_once __DIR__ . '/../config/database.php';
@@ -70,7 +72,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     <header id="header" class="site-header">
         <div class="header-container">
             <div class="logo">
-                <a href="index.php" aria-label="FitZone Fitness Center - Home">
+                <a href="<?php echo $isLoggedIn ? 'dashboard.php' : 'login.php'; ?>" aria-label="FitZone Fitness Center - Home">
                     <img src="images/logo.png" alt="FitZone Logo" width="40" height="40">
                     <span>FitZone</span>
                 </a>
@@ -78,7 +80,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 
             <nav class="main-nav" role="navigation" aria-label="Main navigation">
                 <ul>
-                    <li><a href="index.php" class="<?php echo $currentPage === 'index' ? 'active' : ''; ?>">Home</a></li>
+                    <li><a href="<?php echo $isLoggedIn ? 'dashboard.php' : 'login.php'; ?>" class="<?php echo $currentPage === 'dashboard' ? 'active' : ''; ?>"><?php echo $isLoggedIn ? 'Dashboard' : 'Home'; ?></a></li>
                     <li><a href="about.php" class="<?php echo $currentPage === 'about' ? 'active' : ''; ?>">About</a></li>
                     <li><a href="classes.php" class="<?php echo $currentPage === 'classes' ? 'active' : ''; ?>">Classes</a></li>
                     <li><a href="trainers.php" class="<?php echo $currentPage === 'trainers' ? 'active' : ''; ?>">Trainers</a></li>
@@ -650,10 +652,5 @@ function getCurrentURL() {
     return $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 }
 
-function getUserAvatar($user) {
-    if (!empty($user['profile_picture'])) {
-        return 'uploads/profile-pics/' . $user['profile_picture'];
-    }
-    return 'uploads/profile-pics/default-avatar.jpg';
-}
+// getUserAvatar function moved to functions.php to avoid duplication
 ?>
