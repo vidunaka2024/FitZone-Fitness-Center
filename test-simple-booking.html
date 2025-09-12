@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Trainer Booking</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; white-space: pre-wrap; }
+        button { padding: 10px 20px; font-size: 16px; margin: 10px 0; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        #result { margin-top: 20px; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>Test Trainer Booking</h2>
+    <p>This will test the exact same booking request as the trainers page.</p>
+    
+    <button id="get-csrf">1. Get CSRF Token</button>
+    <button id="test-booking" disabled>2. Test Book Emma Wilson</button>
+    
+    <div id="result"></div>
+
+    <script>
+        let csrfToken = '';
+        
+        // Step 1: Get CSRF token
+        document.getElementById('get-csrf').addEventListener('click', function() {
+            this.textContent = 'Getting token...';
+            
+            fetch('trainers.php')
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const metaTag = doc.querySelector('meta[name="csrf-token"]');
+                
+                if (metaTag) {
+                    csrfToken = metaTag.getAttribute('content');
+                    document.getElementById('result').innerHTML = '<p class="success">✅ CSRF Token obtained: ' + csrfToken.substring(0, 20) + '...</p>';
+                    document.getElementById('test-booking').disabled = false;
+                    this.textContent = '1. ✅ CSRF Token Ready';
+                } else {
+                    document.getElementById('result').innerHTML = '<p class="error">❌ No CSRF token found</p>';
+                    this.textContent = '1. ❌ Token Failed';
+                }
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = '<p class="error">❌ Error getting token: ' + error.message + '</p>';
+                this.textContent = '1. ❌ Token Failed';
+            });
+        });
+
+        // Step 2: Test booking
+        document.getElementById('test-booking').addEventListener('click', function() {
+            if (!csrfToken) {
+                alert('Please get CSRF token first');
+                return;
+            }
+            
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const appointmentDate = tomorrow.toISOString().split('T')[0];
+            
+            const bookingData = new URLSearchParams({
+                trainer_id: 18,
+                appointment_date: appointmentDate,
+                start_time: '10:00:00',
+                end_time: '11:00:00',
+                session_focus: 'General Fitness',
+                appointment_type: 'individual',
+                location: 'gym_floor',
+                notes: 'Test booking from test page',
+                csrf_token: csrfToken
+            });
+
+            this.textContent = '2. Booking...';
+            this.disabled = true;
+            
+            document.getElementById('result').innerHTML += '<p>Sending booking request...</p>';
+
+            fetch('php/trainers/book.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: bookingData
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.text();
+            })
+            .then(data => {
+                console.log('Raw response:', data);
+                
+                document.getElementById('result').innerHTML += '<h3>Raw Response:</h3><pre>' + data + '</pre>';
+                
+                try {
+                    const jsonData = JSON.parse(data);
+                    document.getElementById('result').innerHTML += '<h3>Parsed JSON:</h3><pre>' + JSON.stringify(jsonData, null, 2) + '</pre>';
+                    
+                    if (jsonData.success) {
+                        document.getElementById('result').innerHTML += '<p class="success">🎉 BOOKING SUCCESSFUL!</p>';
+                        document.getElementById('result').innerHTML += '<p>Appointment ID: ' + jsonData.data.appointment_id + '</p>';
+                    } else {
+                        document.getElementById('result').innerHTML += '<p class="error">❌ Booking failed: ' + (jsonData.message || 'Unknown error') + '</p>';
+                        if (jsonData.errors) {
+                            document.getElementById('result').innerHTML += '<p>Errors: ' + JSON.stringify(jsonData.errors) + '</p>';
+                        }
+                    }
+                } catch (e) {
+                    document.getElementById('result').innerHTML += '<p class="error">❌ Response is not valid JSON</p>';
+                    console.error('JSON parse error:', e);
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                document.getElementById('result').innerHTML += '<p class="error">❌ Network error: ' + error.message + '</p>';
+            })
+            .finally(() => {
+                this.textContent = '2. Test Book Emma Wilson';
+                this.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>

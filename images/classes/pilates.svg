@@ -1,0 +1,9 @@
+<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="300" height="200" fill="#f0e6ff"/>
+<circle cx="150" cy="70" r="12" fill="#6f42c1"/>
+<ellipse cx="150" cy="100" rx="20" ry="10" fill="#6f42c1"/>
+<path d="M130 110l15 25 10-5 15 25" stroke="#6f42c1" stroke-width="3" fill="none"/>
+<path d="M125 135l25-10 25 10" stroke="#6f42c1" stroke-width="3" fill="none"/>
+<ellipse cx="150" cy="150" rx="40" ry="8" fill="#ddd"/>
+<text x="150" y="180" font-family="Arial, sans-serif" font-size="16" fill="#2c3e50" text-anchor="middle" font-weight="bold">Pilates</text>
+</svg>

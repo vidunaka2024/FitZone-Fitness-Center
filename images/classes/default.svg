@@ -1,0 +1,7 @@
+<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="300" height="200" fill="#f8f9fa"/>
+<circle cx="150" cy="80" r="20" fill="#e74c3c"/>
+<path d="M130 110h20v20h-20v-20z" fill="#e74c3c"/>
+<path d="M120 130h40v10h-40v-10z" fill="#e74c3c"/>
+<text x="150" y="160" font-family="Arial, sans-serif" font-size="14" fill="#6c757d" text-anchor="middle">Fitness Class</text>
+</svg>

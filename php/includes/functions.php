@@ -847,4 +847,336 @@ if (session_status() === PHP_SESSION_NONE) {
 if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
     checkRememberToken();
 }
+
+// ========================================
+// DASHBOARD FUNCTIONS
+// ========================================
+
+/**
+ * Get user dashboard statistics
+ */
+function getUserDashboardStats($userId) {
+    try {
+        $db = getDB();
+        
+        // Get this month's statistics
+        $currentMonth = date('Y-m');
+        
+        // Class bookings stats
+        $classStats = $db->selectOne("
+            SELECT 
+                COUNT(CASE WHEN cb.booking_status = 'confirmed' AND cs.date >= DATE_FORMAT(CURDATE(), '%Y-%m-01') THEN 1 END) as classes_this_month,
+                COUNT(CASE WHEN cb.booking_status = 'confirmed' AND cs.date < CURDATE() THEN 1 END) as total_classes_attended,
+                SUM(CASE WHEN cb.booking_status = 'confirmed' AND cs.date >= DATE_FORMAT(CURDATE(), '%Y-%m-01') THEN c.duration_minutes ELSE 0 END) as workout_minutes_month,
+                SUM(CASE WHEN cb.booking_status = 'confirmed' AND cs.date >= DATE_FORMAT(CURDATE(), '%Y-%m-01') THEN c.calories_burned_estimate ELSE 0 END) as calories_burned_month
+            FROM class_bookings cb
+            INNER JOIN class_schedules cs ON cb.schedule_id = cs.id
+            INNER JOIN classes c ON cs.class_id = c.id
+            WHERE cb.user_id = ?
+        ", [$userId]);
+        
+        // Personal training stats
+        $trainingStats = $db->selectOne("
+            SELECT 
+                COUNT(CASE WHEN status IN ('completed') AND DATE_FORMAT(appointment_date, '%Y-%m') = ? THEN 1 END) as training_this_month,
+                SUM(CASE WHEN status IN ('completed') AND DATE_FORMAT(appointment_date, '%Y-%m') = ? THEN duration_minutes ELSE 0 END) as training_minutes_month
+            FROM pt_appointments 
+            WHERE user_id = ?
+        ", [$currentMonth, $currentMonth, $userId]);
+        
+        return [
+            'classes_this_month' => (int)($classStats['classes_this_month'] ?? 0),
+            'training_this_month' => (int)($trainingStats['training_this_month'] ?? 0),
+            'total_workouts_month' => (int)($classStats['classes_this_month'] ?? 0) + (int)($trainingStats['training_this_month'] ?? 0),
+            'total_classes_attended' => (int)($classStats['total_classes_attended'] ?? 0),
+            'workout_hours_month' => round(((int)($classStats['workout_minutes_month'] ?? 0) + (int)($trainingStats['training_minutes_month'] ?? 0)) / 60, 1),
+            'calories_burned_month' => (int)($classStats['calories_burned_month'] ?? 0)
+        ];
+    } catch (Exception $e) {
+        logError('Error getting user dashboard stats', ['error' => $e->getMessage()]);
+        return [
+            'classes_this_month' => 0,
+            'training_this_month' => 0, 
+            'total_workouts_month' => 0,
+            'total_classes_attended' => 0,
+            'workout_hours_month' => 0,
+            'calories_burned_month' => 0
+        ];
+    }
+}
+
+/**
+ * Get today's schedule for user
+ */
+function getTodaySchedule($userId) {
+    try {
+        $db = getDB();
+        $today = date('Y-m-d');
+        
+        $schedule = $db->select("
+            SELECT 
+                'class' as type,
+                c.name,
+                cs.start_time,
+                cs.end_time,
+                cs.room,
+                CONCAT(t.first_name, ' ', t.last_name) as instructor_name,
+                cb.booking_status
+            FROM class_bookings cb
+            INNER JOIN class_schedules cs ON cb.schedule_id = cs.id
+            INNER JOIN classes c ON cs.class_id = c.id
+            INNER JOIN users t ON cs.trainer_id = t.id
+            WHERE cb.user_id = ? AND cs.date = ? AND cb.booking_status = 'confirmed'
+            
+            UNION ALL
+            
+            SELECT 
+                'training' as type,
+                CONCAT('Personal Training - ', session_goals) as name,
+                start_time,
+                end_time,
+                location as room,
+                CONCAT(t.first_name, ' ', t.last_name) as instructor_name,
+                status as booking_status
+            FROM pt_appointments pta
+            INNER JOIN users t ON pta.trainer_id = t.id
+            WHERE pta.client_id = ? AND pta.appointment_date = ? AND pta.status IN ('scheduled', 'confirmed')
+            
+            ORDER BY start_time ASC
+        ", [$userId, $today, $userId, $today]);
+        
+        return $schedule;
+    } catch (Exception $e) {
+        logError('Error getting today schedule', ['error' => $e->getMessage()]);
+        return [];
+    }
+}
+
+/**
+ * Get user's upcoming appointments
+ */
+function getUserUpcomingAppointments($userId, $limit = 10) {
+    try {
+        $db = getDB();
+        
+        $appointments = $db->select("
+            SELECT 
+                'class' as type,
+                cb.id as booking_id,
+                c.name as title,
+                cs.date,
+                cs.start_time,
+                cs.end_time,
+                cs.room,
+                CONCAT(t.first_name, ' ', t.last_name) as instructor_name,
+                cb.booking_status,
+                c.image_url
+            FROM class_bookings cb
+            INNER JOIN class_schedules cs ON cb.schedule_id = cs.id
+            INNER JOIN classes c ON cs.class_id = c.id
+            INNER JOIN users t ON cs.trainer_id = t.id
+            WHERE cb.user_id = ? AND cs.date >= CURDATE() AND cb.booking_status IN ('confirmed', 'wait_listed')
+            
+            UNION ALL
+            
+            SELECT 
+                'training' as type,
+                pta.id as booking_id,
+                CONCAT('Personal Training - ', pta.session_goals) as title,
+                pta.appointment_date as date,
+                pta.start_time,
+                pta.end_time,
+                pta.location as room,
+                CONCAT(t.first_name, ' ', t.last_name) as instructor_name,
+                pta.status as booking_status,
+                NULL as image_url
+            FROM pt_appointments pta
+            INNER JOIN users t ON pta.trainer_id = t.id
+            WHERE pta.client_id = ? AND pta.appointment_date >= CURDATE() AND pta.status IN ('scheduled', 'confirmed')
+            
+            ORDER BY date ASC, start_time ASC
+            LIMIT ?
+        ", [$userId, $userId, $limit]);
+        
+        
+        // Format the appointments
+        foreach ($appointments as &$appointment) {
+            $appointment['formatted_date'] = date('M j, Y', strtotime($appointment['date']));
+            $appointment['day_of_week'] = date('l', strtotime($appointment['date']));
+            $appointment['start_time_formatted'] = date('g:i A', strtotime($appointment['start_time']));
+            $appointment['end_time_formatted'] = date('g:i A', strtotime($appointment['end_time']));
+        }
+        
+        return $appointments;
+    } catch (Exception $e) {
+        logError('Error getting user appointments', ['error' => $e->getMessage()]);
+        return [];
+    }
+}
+
+/**
+ * Calculate training session price
+ */
+function calculateTrainingPrice($trainer, $appointmentType, $durationMinutes, $membershipPlan) {
+    $baseHourlyRate = $trainer['hourly_rate'] ?? 75.00;
+    $hours = $durationMinutes / 60;
+    
+    // Apply appointment type multipliers
+    $typeMultipliers = [
+        'individual' => 1.0,
+        'small_group' => 0.7,  // Discount for group sessions
+        'assessment' => 1.2,   // Premium for assessments
+        'consultation' => 0.8  // Discount for consultations
+    ];
+    
+    $typeMultiplier = $typeMultipliers[$appointmentType] ?? 1.0;
+    
+    // Apply membership discounts
+    $membershipDiscounts = [
+        'basic' => 0.0,    // No discount
+        'premium' => 0.10,  // 10% discount
+        'elite' => 0.20     // 20% discount
+    ];
+    
+    $discount = $membershipDiscounts[$membershipPlan] ?? 0.0;
+    
+    // Calculate final price
+    $basePrice = $baseHourlyRate * $hours * $typeMultiplier;
+    $finalPrice = $basePrice * (1 - $discount);
+    
+    return round($finalPrice, 2);
+}
+
+/**
+ * Check if trainer is available at requested time
+ */
+function isTrainerAvailable($trainerId, $appointmentDate, $startTime, $endTime) {
+    try {
+        $db = getDB();
+        
+        // Get trainer's availability schedule
+        $trainer = $db->selectOne(
+            "SELECT availability FROM trainer_profiles WHERE user_id = ?",
+            [$trainerId]
+        );
+        
+        if (!$trainer || empty($trainer['availability'])) {
+            // If no specific schedule, assume available during business hours
+            $businessStart = '06:00:00';
+            $businessEnd = '22:00:00';
+            return ($startTime >= $businessStart && $endTime <= $businessEnd);
+        }
+        
+        // Parse availability schedule (JSON format expected)
+        $schedule = json_decode($trainer['availability'], true);
+        if (!$schedule) {
+            return true; // Default to available if can't parse
+        }
+        
+        $dayOfWeek = strtolower(date('l', strtotime($appointmentDate)));
+        
+        if (!isset($schedule[$dayOfWeek]) || !$schedule[$dayOfWeek]['available']) {
+            return false; // Not available on this day
+        }
+        
+        // Check if time falls within available hours
+        $daySchedule = $schedule[$dayOfWeek];
+        if (isset($daySchedule['time_slots'])) {
+            foreach ($daySchedule['time_slots'] as $slot) {
+                if ($startTime >= $slot['start'] && $endTime <= $slot['end']) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+        
+    } catch (Exception $e) {
+        logError('Error checking trainer availability', ['error' => $e->getMessage()]);
+        return true; // Default to available on error
+    }
+}
+
+/**
+ * Check for scheduling conflicts
+ */
+function checkSchedulingConflicts($trainerId, $userId, $appointmentDate, $startTime, $endTime) {
+    try {
+        $db = getDB();
+        
+        // Check trainer conflicts
+        $trainerConflict = $db->selectOne(
+            "SELECT id FROM pt_appointments 
+             WHERE trainer_id = ? 
+                AND appointment_date = ? 
+                AND status NOT IN ('cancelled', 'completed')
+                AND (
+                    (start_time <= ? AND end_time > ?) OR
+                    (start_time < ? AND end_time >= ?) OR
+                    (start_time >= ? AND end_time <= ?)
+                )",
+            [$trainerId, $appointmentDate, $startTime, $startTime, $endTime, $endTime, $startTime, $endTime]
+        );
+        
+        if ($trainerConflict) {
+            return [
+                'hasConflict' => true,
+                'message' => 'Trainer already has an appointment during this time slot'
+            ];
+        }
+        
+        // Check user conflicts
+        $userConflict = $db->selectOne(
+            "SELECT id FROM pt_appointments 
+             WHERE client_id = ? 
+                AND appointment_date = ? 
+                AND status NOT IN ('cancelled', 'completed')
+                AND (
+                    (start_time <= ? AND end_time > ?) OR
+                    (start_time < ? AND end_time >= ?) OR
+                    (start_time >= ? AND end_time <= ?)
+                )",
+            [$userId, $appointmentDate, $startTime, $startTime, $endTime, $endTime, $startTime, $endTime]
+        );
+        
+        if ($userConflict) {
+            return [
+                'hasConflict' => true,
+                'message' => 'You already have an appointment scheduled during this time'
+            ];
+        }
+        
+        return ['hasConflict' => false, 'message' => ''];
+        
+    } catch (Exception $e) {
+        logError('Error checking conflicts', ['error' => $e->getMessage()]);
+        return [
+            'hasConflict' => true,
+            'message' => 'Unable to verify schedule conflicts. Please try again.'
+        ];
+    }
+}
+
+/**
+ * Map appointment type to session type enum
+ */
+function mapAppointmentTypeToSessionType($appointmentType) {
+    $mapping = [
+        'individual' => 'training',
+        'small_group' => 'training',
+        'assessment' => 'assessment',
+        'consultation' => 'consultation'
+    ];
+    
+    return $mapping[$appointmentType] ?? 'training';
+}
+
+/**
+ * Update trainer availability (placeholder function)
+ */
+function updateTrainerAvailability($trainerId, $date, $startTime, $endTime, $status) {
+    // This could be used to block time slots in a more detailed availability system
+    // For now, we rely on conflict checking
+    return true;
+}
 ?>

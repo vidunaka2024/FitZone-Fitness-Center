@@ -1,0 +1,8 @@
+<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="300" height="200" fill="#e8f5e8"/>
+<circle cx="150" cy="80" r="15" fill="#4a90e2"/>
+<path d="M135 100c0-8.28 6.72-15 15-15s15 6.72 15 15v20h-30v-20z" fill="#4a90e2"/>
+<path d="M125 120l10 20 15-10 15 10 10-20" stroke="#4a90e2" stroke-width="3" fill="none"/>
+<path d="M140 140l10 15 10-15" stroke="#4a90e2" stroke-width="3" fill="none"/>
+<text x="150" y="180" font-family="Arial, sans-serif" font-size="16" fill="#2c3e50" text-anchor="middle" font-weight="bold">Yoga Class</text>
+</svg>

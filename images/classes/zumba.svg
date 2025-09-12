@@ -1,0 +1,10 @@
+<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="300" height="200" fill="#ffeaa7"/>
+<circle cx="150" cy="70" r="15" fill="#e74c3c"/>
+<path d="M135 90c0-8.28 6.72-15 15-15s15 6.72 15 15v25h-30v-25z" fill="#e74c3c"/>
+<path d="M120 115l15 20 30-15 15 25" stroke="#e74c3c" stroke-width="4" fill="none"/>
+<path d="M130 135l20-10 20 10" stroke="#e74c3c" stroke-width="4" fill="none"/>
+<path d="M60 50c10-10 20-10 30 0" stroke="#fd79a8" stroke-width="3" fill="none"/>
+<path d="M210 50c10-10 20-10 30 0" stroke="#fd79a8" stroke-width="3" fill="none"/>
+<text x="150" y="180" font-family="Arial, sans-serif" font-size="16" fill="#2c3e50" text-anchor="middle" font-weight="bold">Zumba Dance</text>
+</svg>

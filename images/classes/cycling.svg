@@ -1,0 +1,10 @@
+<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="300" height="200" fill="#dff5ff"/>
+<circle cx="100" cy="130" r="30" stroke="#007bff" stroke-width="4" fill="none"/>
+<circle cx="200" cy="130" r="30" stroke="#007bff" stroke-width="4" fill="none"/>
+<path d="M130 130h40" stroke="#007bff" stroke-width="4"/>
+<path d="M150 130l-10-30 20-10" stroke="#007bff" stroke-width="3" fill="none"/>
+<path d="M140 100l10-10 10 10" stroke="#007bff" stroke-width="3" fill="none"/>
+<circle cx="150" cy="80" r="8" fill="#007bff"/>
+<text x="150" y="180" font-family="Arial, sans-serif" font-size="16" fill="#2c3e50" text-anchor="middle" font-weight="bold">Indoor Cycling</text>
+</svg>

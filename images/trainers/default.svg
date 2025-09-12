@@ -1,0 +1,6 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="300" height="300" fill="#f8f9fa"/>
+<circle cx="150" cy="120" r="40" fill="#e74c3c"/>
+<path d="M110 180c0-22.09 17.91-40 40-40s40 17.91 40 40v40H110v-40z" fill="#e74c3c"/>
+<text x="150" y="260" font-family="Arial, sans-serif" font-size="14" fill="#6c757d" text-anchor="middle">Personal Trainer</text>
+</svg>
